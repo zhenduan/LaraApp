@@ -15,6 +15,10 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::any('{any}', function () {
+    return view('layouts.master');
+})->where('any', '.*');
+
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');

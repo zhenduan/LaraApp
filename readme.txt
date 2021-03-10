@@ -50,6 +50,25 @@ Add this to app.scss中
 Add those to app.scss中
 
 
+13.
+Install vue router
+npm install vue-router
+
+14.
+
+Paste the code into app.js
+
+14.
+Output <router-view></router-view> in the master.blade.php main content area
+add #app in the master.blade.php
+
+15.
+Change a link to router-link
+change href to to
+
+15.
+error remove: add csrf token in the master.blade.php file
+
 ---- Useful Links ---
 Icon Image:
 https://www.flaticon.com/
