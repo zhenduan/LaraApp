@@ -69,6 +69,96 @@ change href to to
 15.
 error remove: add csrf token in the master.blade.php file
 
----- Useful Links ---
+16.
+HTML5 History Mode Set Up
+add history mode in app.js
+
+const router = new VueRouter({
+  mode: 'history',
+  routes: [...]
+})
+
+17.
+add regex in web.php
+
+18.
+set up logout in master page
+
+php artisan route:list to see all routes
+
+19.
+Use v-form to handel form validation
+https://github.com/cretueusebiu/vform
+
+- run npm i axios vform
+- import { Form, HasError, AlertError } from 'vform' in app.js
+- register global components and form in app.js:
+Vue.component(HasError.name, HasError)
+Vue.component(AlertError.name, AlertError)
+window.Form = Form
+
+-use it in component
+add this into component script
+    data() {
+        return {
+            form: new Form({
+                name: "",
+                email: "",
+                password: "",
+                type: "",
+                bio: "",
+                phone: ""
+            })
+        };
+    },
+
+two way bundle
+<!-- name -->
+<div class="form-group">
+    <input
+        placeholder="Name"
+        v-model="form.name"
+        type="text"
+        name="name"
+        class="form-control"
+        :class="{
+            'is-invalid': form.errors.has('name')
+        }"
+    />
+    <has-error
+        :form="form"
+        field="name"
+    ></has-error>
+</div>
+
+- add method
+@submit.prevent="createUser" add it into form
+
+methods: {
+        createUser() {
+            this.form.post("api/user");
+        }
+    },
+
+
+-create controller api
+php artisan make:controller API/UserController --api
+
+-register API Resourses Routes in api.php
+Route::apiResource('users', 'API\UserController');
+
+
+
+
+
+Tips:
+Set color in variables.css sass folder
+
+click create btn and debug in chrome inspect/Network/XHR/Name/Headers ...
+
+---- Useful Links & Resourses ---
 Icon Image:
 https://www.flaticon.com/
+
+Laravel 5.6 restful partial resource routes
+https://laravel.com/docs/5.6/controllers#restful-partial-resource-routes

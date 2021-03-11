@@ -8,7 +8,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>AdminLTE 3 | Starter</title>
+    <title>LaraApp</title>
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -60,7 +60,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
                 <!-- Sidebar user panel (optional) -->
                 <div class="user-panel mt-3 pb-3 mb-3 d-flex">
                     <div class="image">
-                        <img src="img/admin.png" class="img-circle elevation-2" alt="User Image">
+                        <img src="/img/admin.png" class="img-circle elevation-2" alt="User Image">
                     </div>
                     <div class="info">
                         <a href="#" class="d-block"> {{ Auth::user()->name }} </a>
@@ -88,13 +88,13 @@ scratch. This page gets rid of all links and provides the needed markup only.
                with font-awesome or any other icon font library -->
                         <li class="nav-item">
                             <router-link to="/dashboard" class="nav-link">
-                                <i class=" nav-icon fas fa-tachometer-alt"></i>
+                                <i class=" nav-icon fas fa-tachometer-alt blue-icon"></i>
                                 <p>Dashboard</p>
                             </router-link>
                         </li>
                         <li class="nav-item ">
-                            <a href="#" class="nav-link active">
-                                <i class="nav-icon fas fa-cog"></i>
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-cog blue-icon"></i>
                                 <p>
                                     Management
                                     <i class="right fas fa-angle-left"></i>
@@ -102,10 +102,10 @@ scratch. This page gets rid of all links and provides the needed markup only.
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="#" class="nav-link active">
+                                    <router-link to="/users" class="nav-link active">
                                         <i class="far fa-circle nav-icon"></i>
-                                        <p>Active Page</p>
-                                    </a>
+                                        <p>Users</p>
+                                    </router-link>
                                 </li>
                                 <li class="nav-item">
                                     <a href="#" class="nav-link">
@@ -117,19 +117,28 @@ scratch. This page gets rid of all links and provides the needed markup only.
                         </li>
                         <li class="nav-item">
                             <router-link to="/profile" class="nav-link">
-                                <i class="nav-icon fas fa-user-alt"></i>
+                                <i class="nav-icon fas fa-user-alt blue-icon"></i>
                                 <p>
                                     Profile
                                 </p>
                             </router-link>
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link">
+                            {{-- <a href="#" class="nav-link">
                                 <i class="nav-icon fas fa-power-off"></i>
                                 <p>
                                     Logout
                                 </p>
+                            </a> --}}
+                            {{-- laravel logout --}}
+                            <a class="nav-link" href="{{ route('logout') }}" onclick="event.preventDefault();
+                                          document.getElementById('logout-form').submit();">
+                                <i class="nav-icon fas fa-power-off red-icon"></i>
+                                {{ __('Logout') }}
                             </a>
+                            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                @csrf
+                            </form>
                         </li>
                     </ul>
                 </nav>

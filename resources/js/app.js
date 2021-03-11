@@ -9,6 +9,12 @@ require("./bootstrap");
 window.Vue = require("vue");
 
 import VueRouter from "vue-router";
+import { Form, HasError, AlertError } from "vform";
+
+Vue.component(HasError.name, HasError);
+Vue.component(AlertError.name, AlertError);
+window.Form = Form;
+
 Vue.use(VueRouter);
 
 let routes = [
@@ -16,7 +22,11 @@ let routes = [
         path: "/dashboard",
         component: require("./components/Dashboard.vue").default
     },
-    { path: "/profile", component: require("./components/Profile.vue").default }
+    {
+        path: "/profile",
+        component: require("./components/Profile.vue").default
+    },
+    { path: "/users", component: require("./components/Users.vue").default }
 ];
 
 /**
@@ -36,6 +46,7 @@ Vue.component(
 );
 
 const router = new VueRouter({
+    mode: "history",
     routes // short for `routes: routes`
 });
 
