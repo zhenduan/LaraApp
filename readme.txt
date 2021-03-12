@@ -148,6 +148,96 @@ php artisan make:controller API/UserController --api
 Route::apiResource('users', 'API\UserController');
 
 
+20.
+Server side form validation
+
+add in controller:
+$this->validate($request, [
+    'name' => 'required|string|max:191',
+    'email' => 'required|string|email|max:191|unique:users',
+    password => 'required|string|min:6'
+]);
+
+21.
+Get all users in the user.vue component
+
+add in UserController index method
+return User::latest()->paginate(10);
+
+add in User.vue componend
+
+- create empty users opject: users:{}
+- add method loadUsers(){
+    axios.get('api/user').then(({data}) => (this.users = data.data));
+},
+
+- use created() which is generally used for fetching data from backend API and setting it to data properties.
+    created(){
+        this.loadUsers();
+    }
+- use v-for in component
+  <tr v-for="user in users" :key="user.id">
+    <td>{{user.name}}</td>
+  </tr>
+
+
+22.
+Use filter in vue
+- use filter to make text first letter uppercase
+
+- register the filter as global in app.js
+    Vue.filter('upText', function(text){
+        return text.charAt(0).toUpperCase() + text.slice(1);
+    })
+
+- use the filter in vue component
+    {{user.type | upText}}
+
+
+23.
+Use momentjs to show readable time formate
+- run npm i moment --save
+
+- import it in app.js add
+    import moment from 'moment';
+
+- register it in app.js as global
+    Vue.filter('myDate', function(created_at){
+        return moment(created_at).format('MMMM Do YYYY')
+    })
+
+- use it in vue component
+    {{user.created_at | myDate}}
+
+24.
+Use Progress Bar in Vue component
+
+https://github.com/hilongjw/vue-progressbar
+
+- npm install vue-progressbar
+- import in app.js
+    import VueProgressBar from 'vue-progressbar'
+- Register it in app.js
+
+    Vue.use(VueProgressBar, {
+        color: 'rgb(143, 255, 199)',
+        failedColor: 'red',
+        height: '2px'
+})
+
+- Use it in template just under <router-view></router-view>
+     <!-- set progressbar -->
+    <vue-progress-bar></vue-progress-bar>
+
+- Add start and finish method in the method of vue component
+    start () {
+        this.$Progress.start()
+    },
+
+     finish () {
+        this.$Progress.finish()
+    },
+
 
 
 
@@ -156,9 +246,22 @@ Set color in variables.css sass folder
 
 click create btn and debug in chrome inspect/Network/XHR/Name/Headers ...
 
+- run php artisan route:list to see all endpoints.
+
 ---- Useful Links & Resourses ---
 Icon Image:
 https://www.flaticon.com/
 
 Laravel 5.6 restful partial resource routes
 https://laravel.com/docs/5.6/controllers#restful-partial-resource-routes
+
+Vue filter docs
+https://vuejs.org/v2/guide/filters.html
+
+momentjs - to make date more readable
+https://momentjs.com/
+https://momentjs.com/docs/#/displaying/
+
+Vue js Progress Bar
+https://github.com/hilongjw/vue-progressbar
+http://hilongjw.github.io/vue-progressbar/index.html  -- Demo

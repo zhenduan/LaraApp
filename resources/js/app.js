@@ -10,12 +10,30 @@ window.Vue = require("vue");
 
 import VueRouter from "vue-router";
 import { Form, HasError, AlertError } from "vform";
+import moment from "moment";
+import VueProgressBar from "vue-progressbar";
 
 Vue.component(HasError.name, HasError);
 Vue.component(AlertError.name, AlertError);
 window.Form = Form;
 
 Vue.use(VueRouter);
+
+// register progressbar
+Vue.use(VueProgressBar, {
+    color: "rgb(143, 255, 199)",
+    failedColor: "red",
+    height: "3px"
+});
+
+// register filters
+Vue.filter("upText", function(text) {
+    return text.charAt(0).toUpperCase() + text.slice(1);
+});
+
+Vue.filter("myDate", function(created_at) {
+    return moment(created_at).format("MMMM Do YYYY");
+});
 
 let routes = [
     {
