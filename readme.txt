@@ -87,7 +87,7 @@ set up logout in master page
 php artisan route:list to see all routes
 
 19.
-Use v-form to handel form validation
+Use v-form to handel form validation and can send request; Create and register API
 https://github.com/cretueusebiu/vform
 
 - run npm i axios vform
@@ -136,7 +136,11 @@ two way bundle
 
 methods: {
         createUser() {
-            this.form.post("api/user");
+            this.form.post("api/user").then(()=> {
+                do next
+            }).catch(()=> {
+
+            });
         }
     },
 
@@ -238,6 +242,185 @@ https://github.com/hilongjw/vue-progressbar
         this.$Progress.finish()
     },
 
+- add this.progress.fail() in catch block
+
+
+25.
+Use Sweet Alert
+- npm install sweetalert2
+
+- import and register it in app.js
+    import swal from "sweetalert2";
+    window.swal = swal;
+
+- use toast which is show alert at the right top corner
+    - Register toast in app.js
+        add the code in app.js
+
+        const toast = swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        })
+
+    - Register toast to window element in app.js
+        window.toast = toast;
+
+    - Use toast in vue component: add this code into next the action in component method
+        toast.fire({
+            icon: 'success',
+            title: 'Signed in successfully'
+        })
+
+
+26.
+Close Modal when user created
+- add $('#myModal').modal('hide') after the action and replace the modal ID
+
+27.
+Use Custom Vue Event to as a listener to send request
+
+- add this in app.js to register globally Fire
+    window.Fire = new Vue()
+- use it in component
+    add emit in function - emit is to create an event with a event name passed in it.
+        Fire.$emit('AfterCreated');
+    add $on in created() stage: - $on is to listen the event, and the below event can be listened in any component
+        Fire.$on('AfterCreated', () => {
+            this.loadUsers();
+        })
+- More advanced way is to use Pusher and Laravel echo???
+
+
+28.
+Delete User
+- Add click event in vue component delete btn
+    @click="deleteUser(user.id)"
+- Add deleteUser Function in methods
+    deleteUser(id){
+
+    }
+
+- Add sweetalert2 confirm information in the delete method first
+- Add send delete request before show the delete successfully message
+- Use Promist in the send request and add show delete successfully in then()
+- In UserController delete method
+    add $user = User::findOrFail($id);
+    add $user->delete();
+    add return ['message' => 'user deleted successfully'];
+
+
+29.
+Use one Modal for both add user and edit user
+- firstlly, when add new user, reset all fields by using reset() method of Vue Form,
+    add a method newModel to add user a tag without parameter, and without ()
+
+
+- create function editModal(user) in edit a tag
+- create editModal and receive user data
+- use fill method to fill the user's data
+    this.form.fill(user)
+
+
+30.
+Conditionally Switch Between Edit Mode and Create Mode of Modal Window
+- Create editMode varible in data and set to false,
+- editMode ? editUser() : createUser
+
+
+31.
+Update User
+- add id to form: new Form({
+    id = '';
+})
+
+- create updateUser() method
+    updateUser(){
+        this.$Progress.start();
+        this.form.put('api/users/' + this.form.id).then(()=>{
+            //success sweetalert2
+            //close modal
+            //progress bar finish
+        }).catch(()=>{
+            this.$Progress.fail();
+        })
+    },
+
+
+- add code in UserController edit function
+$user = User::findOrFail($id);
+//validate
+$this->validate($request,[
+    'name' => 'required|string|max:191',
+    'email' => 'required|string|email|max:191|unique:users,email,'.$user->id,
+    'password' => 'sometimes|min:6'
+]);
+
+$user->update($request->all());
+return ['message' => 'User Updated'];
+
+
+32.
+Security Issues While Developing API
+- Install Laravel Passport for laravel 5.6
+https://laravel.com/docs/5.6/passport#installation
+    composer require laravel/passport
+- use default migration
+php artisan vendor:publish --tag=passport-migrations
+
+- migrate
+    php artisan migrate
+- install passport
+    php artisan passport:install
+
+- use HasApiToken in user model
+    use Laravel\Passport\HasApiTokens;
+- add it into User class
+    use HasApiTokens, Notifiable;
+
+- call Passport::routes in boot method of AuthServiceProvider
+    import Passport in to AuthServiceProvider
+    Passport::routes();
+
+-  set the driver option of the api authentication guard to passport.
+    Location: config/auth.php
+
+    'api' => [
+        'driver' => 'passport',
+        'provider' => 'users',
+    ],
+
+- Publish some vue components for passport
+    php artisan vendor:publish --tag=passport-components
+
+33.
+Consume API with JS
+
+- add this into app/Http/Kernel.php file:
+    'web' => [
+    // Other middleware...
+    \Laravel\Passport\Http\Middleware\CreateFreshApiToken::class,
+],
+
+
+
+Client ID: 1
+Client secret: FIXgLuNmEgwKsrSM1PQJxMzyP9MN1C1z1aE5fcoO
+Password grant client created successfully.
+Client ID: 2
+Client secret: RevxOxtYi83KcKVKeFx4y5r2pavBZGTRJzoYrFXO
+
+
+
+
+
+
 
 
 
@@ -265,3 +448,16 @@ https://momentjs.com/docs/#/displaying/
 Vue js Progress Bar
 https://github.com/hilongjw/vue-progressbar
 http://hilongjw.github.io/vue-progressbar/index.html  -- Demo
+
+
+SweetAlert2
+https://sweetalert2.github.io/
+
+Debug sending request in chrom inspect
+
+Arrow function
+it can use this.xx inside it.
+
+Laravel Passport docs
+https://laravel.com/docs/5.6/passport#installation
+

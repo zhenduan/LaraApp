@@ -12,12 +12,48 @@ import VueRouter from "vue-router";
 import { Form, HasError, AlertError } from "vform";
 import moment from "moment";
 import VueProgressBar from "vue-progressbar";
+import swal from "sweetalert2";
+
+// sweet alert
+window.swal = swal;
+
+const toast = swal.mixin({
+    toast: true,
+    position: "top-end",
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    didOpen: toast => {
+        toast.addEventListener("mouseenter", swal.stopTimer);
+        toast.addEventListener("mouseleave", swal.resumeTimer);
+    }
+});
+
+window.toast = toast;
+
+window.Fire = new Vue();
 
 Vue.component(HasError.name, HasError);
 Vue.component(AlertError.name, AlertError);
 window.Form = Form;
 
 Vue.use(VueRouter);
+
+// passport components
+Vue.component(
+    "passport-clients",
+    require("./components/passport/Clients.vue").default
+);
+
+Vue.component(
+    "passport-authorized-clients",
+    require("./components/passport/AuthorizedClients.vue").default
+);
+
+Vue.component(
+    "passport-personal-access-tokens",
+    require("./components/passport/PersonalAccessTokens.vue").default
+);
 
 // register progressbar
 Vue.use(VueProgressBar, {
@@ -43,6 +79,10 @@ let routes = [
     {
         path: "/profile",
         component: require("./components/Profile.vue").default
+    },
+    {
+        path: "/developer",
+        component: require("./components/Developer.vue").default
     },
     { path: "/users", component: require("./components/Users.vue").default }
 ];
