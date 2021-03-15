@@ -7,6 +7,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use App\User;
 
+//require 'vendor/autoload.php';
+
+//use Intervention\Image\ImageManagerStatic as Image;
+
 class UserController extends Controller
 {
 
@@ -58,6 +62,50 @@ class UserController extends Controller
         ]);
     }
 
+    public function profile()
+    {
+        return auth('api')->user();
+    }
+
+    public function updateProfile(Request $request)
+    {
+        //store current user in a variable
+        // return $request->photo;
+        $user = auth('api')->user();
+
+        //validate
+        $this->validate($request, [
+            'name' => 'required|string|max:191',
+            'email' => 'required|string|email|max:191|unique:users,email,' . $user->id,
+            'password' => 'sometimes|required|min:6'
+        ]);
+        // return ['user photo' => $photo];
+        $currentPhoto = $user->photo;
+        if ($request->photo != $currentPhoto) {
+            if ($request->photo) {
+                $name = time() . '.' . explode('/', explode(':', substr($request->photo, 0, strpos($request->photo, ';')))[1])[1];
+                \Image::make($request->photo)->save(public_path('img/profile/' . $name));
+                $request->merge(['photo' => $name]);
+            }
+        }
+
+        // delete old photo
+        $userPhoto = public_path('img/profile/') . $currentPhoto;
+        if (file_exists($userPhoto)) {
+            @unlink($userPhoto);
+        }
+
+        if (!empty($request->password)) {
+            $request->merge(['password' => Hash::make($request['password'])]);
+        }
+
+        $user->update($request->all());
+        return ['message' => 'profile updated'];
+    }
+
+    // user profile controller
+
+
     /**
      * Display the specified resource.
      *
@@ -68,6 +116,8 @@ class UserController extends Controller
     {
         //
     }
+
+
 
     /**
      * Update the specified resource in storage.
@@ -89,6 +139,7 @@ class UserController extends Controller
 
         $user->name = $request->input('name');
         $user->email = $request->input('email');
+        $user->type = $request->input('type');
         $user->bio = $request->input('bio');
         $user->password = Hash::make($request->input('password'));
         $user->update();

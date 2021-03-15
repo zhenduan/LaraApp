@@ -408,6 +408,36 @@ Consume API with JS
     \Laravel\Passport\Http\Middleware\CreateFreshApiToken::class,
 ],
 
+- add this into user controller
+        /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('auth:api');
+    }
+
+    /**
+
+
+34.
+Create Profile component
+
+- LTE admin 3 search widge/social widge
+- LTE admin 3 search Pages / Profile / Settings Tab to find forms
+
+35.
+Populate Login User Infor Into Profile Form
+
+- Create profile method in UserController
+    public function profile(){
+        return auth('api') -> user();
+    }
+- Register Route for Profile method
+    Route::get('profile', 'API\UserController@profile')
+
 
 
 Client ID: 1
@@ -418,6 +448,141 @@ Client secret: RevxOxtYi83KcKVKeFx4y5r2pavBZGTRJzoYrFXO
 
 
 
+36.
+Upload image
+- Add onchange function when upload file
+    @change="updateProfile"
+- add updateProfile function in component script methods object
+      methods: {
+        updateProfile(e) {
+        let file = e.target.files[0];
+        let reader = new FileReader();
+        reader.onloadend = file => {
+            console.log(123);
+            console.log("RESULT", reader.result);
+            this.form.photo = reader.result;
+        };
+        reader.readAsDataURL(file);
+        }
+  },
+
+
+37.
+Submit Base64 string to Server
+- add @click.prevent="updateInfo" to update button
+
+- add updateInfo in component with put axios
+    updateInfo(){
+        this.form.put('api/profile').then(() => {
+
+        }).catch(()=>{
+
+        })
+    }
+
+
+- add updateProfile put route in api.php file
+    Route::put('profile', 'API\UserController@updateProfile');
+
+- Create updateProfile method in UserController
+    public function updateProfile(){
+        //store current user in a variable
+        $user = auth('api')->user;
+    }
+
+
+38.
+Upload and Convert Base64 String to Image In PHP and Laravel
+ - install php image intervention
+    run php artisan vendor:publish --provider="Intervention\Image\ImageServiceProviderLaravelRecent"
+
+ - take file extention, create file name and save in Server
+        if ($request->photo) {
+        $name = time() . '.' . explode('/', explode(':', substr($request->photo, 0, strpos($request->photo, ';')))[1])[1];
+        \Image::make($request->photo)->save(public_path('img/profile/' . $name));
+    }
+
+39.
+Check file size before uploading
+
+40.
+Save Info
+- Check if photo has changed in UserController profile method
+    $currentPhoto = $user->photo;
+    if($request->photo != $currentPhoto){
+
+    }
+
+     $user->update($request->all());
+- Use Merge to change the request field name
+- Validate input information in UserController
+        //validate
+        $this->validate($request, [
+            'name' => 'required|string|max:191',
+            'email' => 'required|string|email|max:191|unique:users,email,' . $user->id,
+            'password' => 'sometimes|required|min:6'
+        ]);
+
+- Check if password has been changed and hash it
+
+    if(!empty($request->password)){
+        $request->merge(['password' => Hash::make($request['password'])]);
+    }
+    $user->update($request->all());
+
+- Handle error in profile forms
+    - Add this in input field
+        :class="{
+    'is-invalid': form.errors.has('name')}"
+    - Add this behind input field
+         <has-error
+            :form="form"
+            field="name"
+        ></has-error>
+
+
+41.
+Delete old photo from Server by using @unlink
+    $userPhoto = public_path('img/profile/).$currentPhoto;
+    if(file_exists($userPhoto)){
+        @unlink($userPhoto);
+    }
+
+42.
+Display image from server in Vue
+
+- Add getImage function and bind it with image src
+    :src="userPhoto"
+- Create the function
+    getProfileImage(){
+        return 'img/profile/' + this.form.photo;
+    }
+
+-43.
+Apply access control for users
+- Add gate in AuthServiceProvider.php
+     public function boot(GateContract $gate)
+    {
+        $this->registerPolicies($gate);
+
+        $gate->define('isAdmin', function ($user) {
+            return $user->type == 'admin';
+        });
+
+        $gate->define('isUser', function ($user) {
+            return $user->type == 'user';
+        });
+
+        $gate->define('isOrganization', function ($user) {
+            return $user->type == 'organization';
+        });
+
+        $gate->define('isMyAccount', function ($user, $profileUser) {
+            return $user->id === $profileUser->id;
+        });
+
+        Passport::routes();
+    }
 
 
 
@@ -461,3 +626,18 @@ it can use this.xx inside it.
 Laravel Passport docs
 https://laravel.com/docs/5.6/passport#installation
 
+
+How can I convert an image into Base64 string using JavaScript?(use approach three)
+https://stackoverflow.com/questions/6150289/how-can-i-convert-an-image-into-base64-string-using-javascript
+
+PHP Image Intervention
+http://image.intervention.io/
+
+
+Solve Composer Memory Limit error
+sudo php -d memory_limit=-1 /usr/local/bin/composer install
+https://github.com/invoiceninja/invoiceninja/issues/60
+https://stackoverflow.com/questions/36107400/composer-update-memory-limit
+
+Vue input file clear
+https://codepen.io/Pratik__007/pen/MWYVjqP?editors=1010
