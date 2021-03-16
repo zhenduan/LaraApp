@@ -584,6 +584,59 @@ Apply access control for users
         Passport::routes();
     }
 
+ - Use @can to limit user access
+- authorize through controller helper
+      $this->authorize('isAdmin');
+
+- ACL in Vue Component
+    - create Gate.js file in js folder
+    - export default class Gate{
+        constructor(user){
+            this.user = user;
+        }
+
+        isAdmin(){
+            return this.user.type === 'admin';
+        }
+        isAdmin(){
+            return this.user.type === 'user';
+        }
+    }
+
+    - import gate in app.js
+        import Gate from "./Gate";
+    - Use js prototype to use it anywhere in the app
+        Vue.prototype.$gate = new Gate(window.user);
+
+    - get window.user
+        in master.blade.php before /body add
+        @auth
+            <script>
+                window.user = @json(auth()->user())
+            </script>
+        @endauth
+    - use it in component
+        hide div element : v-if="$gate.isAdmin()"
+
+    - use gate in template script
+        this.$gate.isAdmin
+
+- Show 404 for front-end if user doesn't have access
+   - create component and register globally in app.js
+
+
+- Different user types have the same access level
+   - Add gate in AuthServiceProvider
+        $gate->define('isDeveloper', function ($user) {
+            return $user->type == 'developer';
+        });
+    - Add gate in Gate.js file
+         isAdminOrDeveloper(){
+        if(this.user.type === "admin" || this.user.type === "developer"){
+            return true;
+        }
+       }
+
 
 
 
@@ -641,3 +694,10 @@ https://stackoverflow.com/questions/36107400/composer-update-memory-limit
 
 Vue input file clear
 https://codepen.io/Pratik__007/pen/MWYVjqP?editors=1010
+
+
+illustrations Resourses
+https://undraw.co/illustrations
+
+Authorizing Actions
+https://laravel.com/docs/5.7/authorization

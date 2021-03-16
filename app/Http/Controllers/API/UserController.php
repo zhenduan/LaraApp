@@ -33,7 +33,12 @@ class UserController extends Controller
     public function index()
     {
         //
-        return User::latest()->paginate(10);
+        // $this->authorize('isAdmin');
+        if (\Gate::allows('isAdmin') || \Gate::allows('isDeveloper')  ) {
+            // The current user can't update the post...
+            return User::latest()->paginate(10);
+
+        }
     }
 
     /**
@@ -77,8 +82,10 @@ class UserController extends Controller
         $this->validate($request, [
             'name' => 'required|string|max:191',
             'email' => 'required|string|email|max:191|unique:users,email,' . $user->id,
-            'password' => 'sometimes|required|min:6'
+            'password' => 'sometimes|nullable|min:6'
+
         ]);
+
         // return ['user photo' => $photo];
         $currentPhoto = $user->photo;
         if ($request->photo != $currentPhoto) {
@@ -87,19 +94,30 @@ class UserController extends Controller
                 \Image::make($request->photo)->save(public_path('img/profile/' . $name));
                 $request->merge(['photo' => $name]);
             }
+            // delete old photo
+            $userPhoto = public_path('img/profile/') . $currentPhoto;
+            if (file_exists($userPhoto)) {
+                @unlink($userPhoto);
+            }
         }
 
-        // delete old photo
-        $userPhoto = public_path('img/profile/') . $currentPhoto;
-        if (file_exists($userPhoto)) {
-            @unlink($userPhoto);
-        }
 
+
+        // if (!empty($request->password)) {
+        //     $request->merge(['password' => Hash::make($request['password'])]);
+        // }
+
+        $user->name = $request->input('name');
+        $user->email = $request->input('email');
+        $user->bio = $request->input('bio');
+        $user->photo = $request->input('photo');
         if (!empty($request->password)) {
-            $request->merge(['password' => Hash::make($request['password'])]);
+            $user->password = Hash::make($request->input('password'));
         }
 
-        $user->update($request->all());
+        $user->update();
+
+        // $user->update($request->all());
         return ['message' => 'profile updated'];
     }
 
@@ -134,14 +152,17 @@ class UserController extends Controller
         $this->validate($request, [
             'name' => 'required|string|max:191',
             'email' => 'required|string|email|max:191|unique:users,email,' . $user->id,
-            'password' => 'sometimes|min:6'
+            'password' => 'sometimes|nullable|min:6'
         ]);
 
         $user->name = $request->input('name');
         $user->email = $request->input('email');
         $user->type = $request->input('type');
         $user->bio = $request->input('bio');
-        $user->password = Hash::make($request->input('password'));
+
+        if (!empty($request->password)) {
+            $user->password = Hash::make($request->input('password'));
+        }
         $user->update();
         // $user->update($request->all());
         return ['message' => 'User Updated'];
@@ -156,6 +177,7 @@ class UserController extends Controller
     public function destroy($id)
     {
         //
+        $this->authorize('isAdmin');
         $user = User::findOrFail($id);
         $user->delete();
         return ['message' => 'user deleted successfully'];

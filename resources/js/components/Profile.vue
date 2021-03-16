@@ -7,9 +7,11 @@
           <div class="widget-user-header bg-info">
             <h3 class="widget-user-username">{{form.name}}</h3>
             <h5 class="widget-user-desc">Type: {{form.type}}</h5>
+            <h5 class="widget-user-desc">Bio: {{form.bio}}</h5>
           </div>
           <div class="widget-user-image">
-            <img class="img-circle elevation-2" :src="userPhoto" alt="User Avatar" />
+            <img class="img-circle elevation-2" v-bind:src="userPhoto" alt="User Avatar" />
+            <!-- <img class="img-circle elevation-2" :src="getProfilePhoto()" alt="User Avatar" /> -->
           </div>
           <div class="card-footer">
             <div class="row">
@@ -96,7 +98,7 @@
               <div class="col-sm-10">
                 <input
                   type="file"
-                  @change="updateProfile"
+                  @change="updatePhoto"
                   ref="fileupload"
                   :class="{
                    'is-invalid': form.errors.has('photo')}"
@@ -159,12 +161,22 @@ export default {
     };
   },
   methods: {
-    updateProfile(e) {
+    getProfilePhoto() {
+      let photo =
+        this.form.photo.length > 200
+          ? this.form.photo
+          : "img/profile/" + this.form.photo;
+      return photo;
+    },
+    updatePhoto(e) {
       let file = e.target.files[0];
       let reader = new FileReader();
+
       if (file["size"] < 2111775) {
         reader.onloadend = file => {
           this.form.photo = reader.result;
+          //   console.log(reader.result);
+          this.userPhoto = reader.result;
         };
         reader.readAsDataURL(file);
       } else {
@@ -187,6 +199,7 @@ export default {
       //     .catch(() => {
       //       this.$Progress.fail();
       //     });
+
       this.$Progress.start();
       this.form
         .put("api/profile")
@@ -195,7 +208,7 @@ export default {
           //Toaster from Sweet Alert
           toast.fire({
             icon: "success",
-            title: "Profile Updated Successfully"
+            title: "Profile Updated successfully"
           });
           Fire.$emit("AfterUpdate");
         })
@@ -215,7 +228,7 @@ export default {
     console.log("Component mounted.");
   },
   created() {
-    // axios.get("api/profile").then(({ data }) => this.form.fill(data));
+    //axios.get("api/profile").then(({ data }) => this.form.fill(data));
     this.$Progress.start();
     axios
       .get("api/profile")
