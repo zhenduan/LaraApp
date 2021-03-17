@@ -17,6 +17,7 @@ import Gate from "./Gate";
 
 Vue.prototype.$gate = new Gate(window.user);
 
+Vue.component("pagination", require("laravel-vue-pagination"));
 // sweet alert
 window.swal = swal;
 
@@ -59,10 +60,7 @@ Vue.component(
 );
 
 // 404 component
-Vue.component(
-    "not-found",
-    require("./components/NotFound.vue").default
-);
+Vue.component("not-found", require("./components/NotFound.vue").default);
 
 // register progressbar
 Vue.use(VueProgressBar, {
@@ -93,7 +91,8 @@ let routes = [
         path: "/developer",
         component: require("./components/Developer.vue").default
     },
-    { path: "/users", component: require("./components/Users.vue").default }
+    { path: "/users", component: require("./components/Users.vue").default },
+    { path: "*", component: require("./components/NotFound.vue").default }
 ];
 
 /**
@@ -125,7 +124,16 @@ const router = new VueRouter({
 
 const app = new Vue({
     el: "#app",
-    router
+    router,
+    data: {
+        search: ""
+    },
+    methods: {
+        searchit() {
+            Fire.$emit("searching");
+            console.log("searching...");
+        }
+    }
 });
 
 // const app = new Vue({

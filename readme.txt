@@ -380,9 +380,9 @@ php artisan vendor:publish --tag=passport-migrations
     php artisan passport:install
 
 - use HasApiToken in user model
-    use Laravel\Passport\HasApiTokens;
-- add it into User class
-    use HasApiTokens, Notifiable;
+   - use Laravel\Passport\HasApiTokens;
+   - add it into User class
+        use HasApiTokens, Notifiable;
 
 - call Passport::routes in boot method of AuthServiceProvider
     import Passport in to AuthServiceProvider
@@ -639,6 +639,113 @@ Apply access control for users
 
 
 
+44.
+Vue Pagination packages
+ - simple table
+    Vue-table-component (no pagination)
+
+    Vuetable-2
+
+- Pagination
+        Latavel-vue-pagination
+
+ - complex table
+    vue datatable
+
+45.
+Use Vue Pagination
+- Install Vue Pagination
+    npm i laravel-vue-pagination
+- Register globally
+    Vue.component('pagination', require('laravel-vue-pagination'));
+
+- Use it in component
+    - add it after the table
+    <pagination :data="users" @pagination-change-page="getResults"></pagination>
+
+    - add in for table row
+         <tr v-for="user in users.data" :key="user.id">
+
+    - create method to send request
+              // Our method to GET results from a Laravel endpoint
+		getResults(page = 1) {
+			axios.get('api/users?page=' + page)
+				.then(response => {
+					this.users = response.data;
+				});
+		},
+
+    - solve array error and change it to object, this.users=data.data is array and change it to data.
+            loadUsers() {
+                if (this.$gate.isAdminOrDeveloper()) {
+                    axios.get("api/users").then(({ data }) => (this.users = data));
+                }
+            },
+
+    - Add Paginate in controller php
+        return User::latest()->paginate(10);
+
+46.
+Vue Router 404 Page
+- In app.js file let routes = [] add
+    {path: '*', componentrequire('NotFound.vue')}
+
+47.
+Re-Usable Search Functionality
+
+- create search variable in app.js file
+    const app = new Vue({
+        el: "#app",
+        router,
+        data: {
+            search: ""
+        }
+});
+
+- in master.blade.php file add v-model="search" in input field.
+
+- create searchit function in input field: @keyup="searchit"
+- create searchit function in button field: @click="searchit"
+
+- press enter and start search @keyup.enter="searchit"
+- create event and fire in app.js
+    methods:{
+        searchit(){
+            Fire.$emit('searching');
+        }
+    }
+- Receive fire event and do the searching in User.vue
+    created(){
+        Fire.$on('searching', ()=> {
+            //receive data from parent component
+            let query = this.$parent.search;
+            //send request
+            axios.get('api/findUser?q=' + query).then((data) => {
+                this.users = data.data;
+            }).catch(()=>{
+
+            })
+
+        })
+    }
+
+- Create findUser route in api.php
+    Route::get('findUser', 'API\UserController@search');
+- Create findUser method in UserController.php
+        public function search()
+    {
+        if ($search = \Request::get('q')) {
+            $users = User::where(function ($query) use ($search) {
+                $query->where('name', 'LIKE', "%$search%")
+                    ->orWhere('type', 'LIKE', "%$search%")
+                    ->orWhere('email', 'LIKE', "%$search%");
+            })->paginate(20);
+        } else {
+            $users = User::latest()->paginate(5);
+        }
+
+        return $users;
+    }
 
 
 
@@ -701,3 +808,30 @@ https://undraw.co/illustrations
 
 Authorizing Actions
 https://laravel.com/docs/5.7/authorization
+
+A curated list of awesome things related to Vue.js
+https://github.com/vuejs/awesome-vue
+
+
+LaraApp Git
+https://github.com/Hujjat/laravStart
+https://www.youtube.com/watch?v=6iaIMvgLshY&list=PLB4AdipoHpxaHDLIaMdtro1eXnQtl_UvE&index=49
+
+Here are the things you will learn in this series and what the repo include out of the box:
+
+How use Vue Router with Laravel
+How to Install AdminLTE 3
+How to Use Font Awesome 5 on Laravel
+How integrate mailchimp with laravel
+How to use Laravel Socialite
+How to Login Using Social Media
+How to Use API in Laravel
+Api Auth with Laravel Passport
+JWT with Laravel Passport and JavaScript Request
+Vue Custom Events
+Vue form with Laravel
+Relational Database with Laravel
+Axios and Ajax Request
+ACL in Laravel
+Online Users list
+And much more...

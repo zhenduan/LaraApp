@@ -34,10 +34,9 @@ class UserController extends Controller
     {
         //
         // $this->authorize('isAdmin');
-        if (\Gate::allows('isAdmin') || \Gate::allows('isDeveloper')  ) {
+        if (\Gate::allows('isAdmin') || \Gate::allows('isDeveloper')) {
             // The current user can't update the post...
             return User::latest()->paginate(10);
-
         }
     }
 
@@ -181,5 +180,20 @@ class UserController extends Controller
         $user = User::findOrFail($id);
         $user->delete();
         return ['message' => 'user deleted successfully'];
+    }
+
+    public function search()
+    {
+        if ($search = \Request::get('q')) {
+            $users = User::where(function ($query) use ($search) {
+                $query->where('name', 'LIKE', "%$search%")
+                    ->orWhere('type', 'LIKE', "%$search%")
+                    ->orWhere('email', 'LIKE', "%$search%");
+            })->paginate(20);
+        } else {
+            $users = User::latest()->paginate(5);
+        }
+
+        return $users;
     }
 }

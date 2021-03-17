@@ -33,7 +33,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="user in users" :key="user.id">
+              <tr v-for="user in users.data" :key="user.id">
                 <td>{{ user.id }}</td>
                 <td>{{ user.name }}</td>
                 <td>{{ user.email }}</td>
@@ -49,11 +49,12 @@
         </div>
         <!-- /.card-body -->
       </div>
+      <pagination :data="users" @pagination-change-page="getResults"></pagination>
       <!-- /.card -->
     </div>
 
-     <div class="col-md-12" v-if="!$gate.isAdminOrDeveloper()">
-         <not-found></not-found>
+    <div class="col-md-12" v-if="!$gate.isAdminOrDeveloper()">
+      <not-found></not-found>
     </div>
 
     <!-- add user modal -->
@@ -203,9 +204,15 @@ export default {
     };
   },
   methods: {
+    // Our method to GET results from a Laravel endpoint
+    getResults(page = 1) {
+      axios.get("api/users?page=" + page).then(response => {
+        this.users = response.data;
+      });
+    },
     loadUsers() {
       if (this.$gate.isAdminOrDeveloper()) {
-        axios.get("api/users").then(({ data }) => (this.users = data.data));
+        axios.get("api/users").then(({ data }) => (this.users = data));
       }
     },
     createUser() {
@@ -290,6 +297,18 @@ export default {
     }
   },
   created() {
+    //   search user event triggered method
+    Fire.$on("searching", () => {
+      //receive data from parent component
+      let query = this.$parent.search;
+      //send request
+      axios
+        .get("api/findUser?q=" + query)
+        .then(data => {
+          this.users = data.data;
+        })
+        .catch(() => {});
+    });
     this.loadUsers();
     Fire.$on("ReloadUsers", () => {
       this.loadUsers();
