@@ -747,7 +747,41 @@ Re-Usable Search Functionality
         return $users;
     }
 
+48.
+Use debounce to instant search with seconds wait
+- in app.js searchit method
+    searchit: _.debounce(() => {
+          Fire.$emit("searching");
+    }, 2000)
 
+
+
+49.
+Print Invoices as PDF
+- set sass style in app.scss
+    @media print {
+    .nav.nav-tabs li:not(.active){
+        display: none;
+    }
+    .invoice{
+    	padding: 10px 20px;
+    }
+
+    .invoice{
+		background-position: center center;
+		background-repeat: no-repeat;
+
+	}
+	.table-responsive table{
+		background-color: transparent !important;
+	}
+
+}
+
+@page {
+    margin: 0;
+}
+- add printme method
 
 Tips:
 Set color in variables.css sass folder
@@ -811,6 +845,10 @@ https://laravel.com/docs/5.7/authorization
 
 A curated list of awesome things related to Vue.js
 https://github.com/vuejs/awesome-vue
+
+
+udemy coupon
+
 
 
 LaraApp Git

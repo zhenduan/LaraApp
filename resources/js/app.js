@@ -25,8 +25,8 @@ const toast = swal.mixin({
     toast: true,
     position: "top-end",
     showConfirmButton: false,
-    timer: 3000,
-    timerProgressBar: true,
+    timer: 2500,
+    // timerProgressBar: true,
     didOpen: toast => {
         toast.addEventListener("mouseenter", swal.stopTimer);
         toast.addEventListener("mouseleave", swal.resumeTimer);
@@ -77,6 +77,8 @@ Vue.filter("upText", function(text) {
 Vue.filter("myDate", function(created_at) {
     return moment(created_at).format("MMMM Do YYYY");
 });
+
+var _ = require("lodash");
 
 let routes = [
     {
@@ -129,9 +131,12 @@ const app = new Vue({
         search: ""
     },
     methods: {
-        searchit() {
+        searchit: _.debounce(() => {
             Fire.$emit("searching");
-            console.log("searching...");
+        }, 2000),
+
+        printme() {
+            window.print();
         }
     }
 });

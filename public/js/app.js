@@ -84189,8 +84189,8 @@ var toast = sweetalert2__WEBPACK_IMPORTED_MODULE_4___default.a.mixin({
   toast: true,
   position: "top-end",
   showConfirmButton: false,
-  timer: 3000,
-  timerProgressBar: true,
+  timer: 2500,
+  // timerProgressBar: true,
   didOpen: function didOpen(toast) {
     toast.addEventListener("mouseenter", sweetalert2__WEBPACK_IMPORTED_MODULE_4___default.a.stopTimer);
     toast.addEventListener("mouseleave", sweetalert2__WEBPACK_IMPORTED_MODULE_4___default.a.resumeTimer);
@@ -84221,6 +84221,9 @@ Vue.filter("upText", function (text) {
 Vue.filter("myDate", function (created_at) {
   return moment__WEBPACK_IMPORTED_MODULE_2___default()(created_at).format("MMMM Do YYYY");
 });
+
+var _ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
+
 var routes = [{
   path: "/dashboard",
   component: __webpack_require__(/*! ./components/Dashboard.vue */ "./resources/js/components/Dashboard.vue")["default"]
@@ -84266,9 +84269,11 @@ var app = new Vue({
     search: ""
   },
   methods: {
-    searchit: function searchit() {
+    searchit: _.debounce(function () {
       Fire.$emit("searching");
-      console.log("searching...");
+    }, 2000),
+    printme: function printme() {
+      window.print();
     }
   }
 }); // const app = new Vue({
